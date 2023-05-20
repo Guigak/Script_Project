@@ -9,6 +9,7 @@ class HAMBOGOGA :
         # Init
         self.InitAppTitle()
         self.InitLocationListBox()
+        self.InitSearchLayout()
 
         self.window_main.mainloop()
 
@@ -22,5 +23,12 @@ class HAMBOGOGA :
 
         self.listbox_Location = Listbox(self.window_main, width= 33, height= 10, yscrollcommand= self.scrollbar_Location.set)
         self.listbox_Location.place(x= 15, y= 80)
+
+    def InitSearchLayout(self) :
+        self.entry_Search = Entry(self.window_main, width= 25)
+        self.entry_Search.place(x= 315, y= 84)
+
+        self.button_Search = Button(self.window_main, text= "검색", width=5)
+        self.button_Search.place(x= 535, y= 80)
 
 HAMBOGOGA()
