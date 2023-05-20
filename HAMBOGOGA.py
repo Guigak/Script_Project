@@ -10,6 +10,7 @@ class HAMBOGOGA :
         self.InitAppTitle()
         self.InitLocationListBox()
         self.InitSearchLayout()
+        self.InitInfoButton()
 
         self.window_main.mainloop()
 
@@ -30,5 +31,15 @@ class HAMBOGOGA :
 
         self.button_Search = Button(self.window_main, text= "검색", width=5)
         self.button_Search.place(x= 535, y= 80)
+
+    def InitInfoButton(self) :
+        self.button_PM = Button(self.window_main, text= "미세먼지 정보", width= 33, height= 1)
+        self.button_PM.place(x= 311, y= 150)
+        
+        self.butto_Weather = Button(self.window_main, text= "날씨 정보", width= 33, height= 1)
+        self.butto_Weather.place(x= 311, y= 200)
+        
+        self.butto_Stock = Button(self.window_main, text= "주식 정보", width= 33, height= 1)
+        self.butto_Stock.place(x= 311, y= 250)
 
 HAMBOGOGA()
