@@ -11,6 +11,7 @@ class HAMBOGOGA :
         self.InitLocationListBox()
         self.InitSearchLayout()
         self.InitInfoButton()
+        self.InitInfoCanvas()
 
         self.window_main.mainloop()
 
@@ -41,5 +42,9 @@ class HAMBOGOGA :
         
         self.butto_Stock = Button(self.window_main, text= "주식 정보", width= 33, height= 1)
         self.butto_Stock.place(x= 311, y= 250)
+
+    def InitInfoCanvas(self) :
+        self.canvas_Info = Canvas(self.window_main, width= 567, height= 300, bg= 'white')
+        self.canvas_Info.place(x= 15, y= 300)
 
 HAMBOGOGA()
