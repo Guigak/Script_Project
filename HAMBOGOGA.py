@@ -26,6 +26,14 @@ class HAMBOGOGA :
         self.LocalData_wb = load_workbook("LocalData.xlsx", data_only= True)
         self.LocalData_ws = self.LocalData_wb['Sheet1']
 
+        # A : 시도
+        # B : 시군구
+        # C : 읍면동
+        # D : x
+        # E : y
+        # F : 경도
+        # G : 위도
+
         # # test
         # for row in self.LocalData_ws.rows :
         #     print(row[7].value)
@@ -47,6 +55,8 @@ class HAMBOGOGA :
         self.scrollbar_Location.pack(side= 'right', fill= 'y')
 
         self.listbox_Location.config(yscrollcommand= self.scrollbar_Location.set)
+        self.listbox_Location.event_generate("<<ListboxSelect>>")
+        self.listbox_Location.bind("<<ListboxSelect>>", self.Selected_ListBox)
         
         count = 1
         for row in self.LocalData_ws.rows :
@@ -80,5 +90,8 @@ class HAMBOGOGA :
 
     # about listbox
 
+    def Selected_ListBox(self, event) :
+        self.entry_Search.delete(0, 'end')
+        self.entry_Search.insert(0, self.LocalData_ws.cell(event.widget.curselection()[0] + 1, 3).value)
 
 HAMBOGOGA()
