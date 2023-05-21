@@ -47,4 +47,9 @@ class HAMBOGOGA :
         self.canvas_Info = Canvas(self.window_main, width= 567, height= 300, bg= 'white')
         self.canvas_Info.place(x= 15, y= 300)
 
+        self.canvas_Info2 = Canvas(self.window_main, width= 567, height= 260, bg= 'white')
+        self.canvas_Info2.place(x= 15, y= 620)
+
+        
+
 HAMBOGOGA()
