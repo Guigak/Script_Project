@@ -24,24 +24,30 @@ class HAMBOGOGA :
         self.LocalData_wb = load_workbook("LocalData.xlsx", data_only= True)
         self.LocalData_ws = self.LocalData_wb['Sheet1']
 
-        # test
-        for r in range(1, 11) :
-            for c in range(1, 8) :
-                print(self.LocalData_ws.cell(r, c).value, end= "/")
-
-            print()
-
+        # # test
+        # for row in self.LocalData_ws.rows :
+        #     print(row[7].value)
 
     def InitAppTitle(self) :
         self.button_AppTitle = Button(self.window_main, text= "HAMBOGOGA", width= 70, height= 2)    # height 1 : 25?
         self.button_AppTitle.place(x= 15, y= 15)
 
     def InitLocationListBox(self) :
-        self.scrollbar_Location = Scrollbar(self.window_main)
-        self.scrollbar_Location.place(x=290, y=80)
+        self.frame_Location = Frame(self.window_main, width= 33, height= 10)
+        self.frame_Location.place(x= 15, y= 80)
 
-        self.listbox_Location = Listbox(self.window_main, width= 33, height= 10, yscrollcommand= self.scrollbar_Location.set)
-        self.listbox_Location.place(x= 15, y= 80)
+        self.listbox_Location = Listbox(self.frame_Location, width= 33, height= 10)
+        self.listbox_Location.pack(side= 'left', fill= 'y')
+
+        self.scrollbar_Location = Scrollbar(self.frame_Location, command= self.listbox_Location.yview)
+        self.scrollbar_Location.pack(side= 'right', fill= 'y')  # 이거 하다가 나감
+
+        self.listbox_Location.config(yscrollcommand= self.scrollbar_Location.set)
+        
+        count = 1
+        for row in self.LocalData_ws.rows :
+            self.listbox_Location.insert(count, row[7].value)
+            count += 1
 
     def InitSearchLayout(self) :
         self.entry_Search = Entry(self.window_main, width= 25)
