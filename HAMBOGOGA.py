@@ -1,10 +1,15 @@
 from tkinter import *
 from tkinter import font
 
+from openpyxl import load_workbook
+
 class HAMBOGOGA :
     def __init__(self) :
         self.window_main = Tk()
         self.window_main.geometry("600x900")
+
+        # data
+        self.ReadExelFile()
 
         # Init
         self.InitAppTitle()
@@ -14,6 +19,18 @@ class HAMBOGOGA :
         self.InitInfoCanvas()
 
         self.window_main.mainloop()
+
+    def ReadExelFile(self) :
+        self.LocalData_wb = load_workbook("LocalData.xlsx", data_only= True)
+        self.LocalData_ws = self.LocalData_wb['Sheet1']
+
+        # test
+        for r in range(1, 11) :
+            for c in range(1, 8) :
+                print(self.LocalData_ws.cell(r, c).value, end= "/")
+
+            print()
+
 
     def InitAppTitle(self) :
         self.button_AppTitle = Button(self.window_main, text= "HAMBOGOGA", width= 70, height= 2)    # height 1 : 25?
