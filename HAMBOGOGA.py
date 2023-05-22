@@ -1,6 +1,8 @@
 from tkinter import *
 from tkinter import font
 
+import webbrowser
+
 from openpyxl import load_workbook
 
 class HAMBOGOGA :
@@ -41,7 +43,7 @@ class HAMBOGOGA :
     # init
 
     def InitAppTitle(self) :
-        self.button_AppTitle = Button(self.window_main, text= "HAMBOGOGA", width= 70, height= 2)    # height 1 : 25?
+        self.button_AppTitle = Button(self.window_main, text= "HAMBOGOGA", width= 70, height= 2, command= self.Clicked_Title)    # height 1 : 25?
         self.button_AppTitle.place(x= 15, y= 15)
 
     def InitLocationListBox(self) :
@@ -87,6 +89,11 @@ class HAMBOGOGA :
 
         self.canvas_Info2 = Canvas(self.window_main, width= 567, height= 260, bg= 'white')
         self.canvas_Info2.place(x= 15, y= 620)
+
+    # about title
+
+    def Clicked_Title(self) :
+        webbrowser.open("https://www.tukorea.ac.kr")
 
     # about listbox
 
