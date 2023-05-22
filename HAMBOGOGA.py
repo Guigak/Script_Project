@@ -1,9 +1,18 @@
+# tkinter
 from tkinter import *
 from tkinter import font
 
+# webbrowser
 import webbrowser
 
+# excel
 from openpyxl import load_workbook
+
+# xml
+import urllib
+from urllib.request import urlopen
+from urllib.parse import urlencode, unquote, quote_plus
+import xml.etree.ElementTree as ET
 
 class HAMBOGOGA :
     def __init__(self) :
@@ -19,11 +28,11 @@ class HAMBOGOGA :
         self.InitSearchLayout()
         self.InitInfoButton()
         self.InitInfoCanvas()
+        self.InitAPIInfo()
 
         self.window_main.mainloop()
 
     # read file
-
     def ReadExelFile(self) :
         self.LocalData_wb = load_workbook("LocalData.xlsx", data_only= True)
         self.LocalData_ws = self.LocalData_wb['Sheet1']
@@ -41,7 +50,6 @@ class HAMBOGOGA :
         #     print(row[7].value)
 
     # init
-
     def InitAppTitle(self) :
         self.button_AppTitle = Button(self.window_main, text= "HAMBOGOGA", width= 70, height= 2, command= self.Clicked_Title)    # height 1 : 25?
         self.button_AppTitle.place(x= 15, y= 15)
@@ -70,7 +78,7 @@ class HAMBOGOGA :
         self.entry_Search.insert(0, "정왕동")
         self.entry_Search.place(x= 315, y= 84)
 
-        self.button_Search = Button(self.window_main, text= "검색", width=5)
+        self.button_Search = Button(self.window_main, text= "검색", width=5, command= self.Clicked_Search)
         self.button_Search.place(x= 535, y= 80)
 
     def InitInfoButton(self) :
@@ -90,15 +98,56 @@ class HAMBOGOGA :
         self.canvas_Info2 = Canvas(self.window_main, width= 567, height= 260, bg= 'white')
         self.canvas_Info2.place(x= 15, y= 620)
 
-    # about title
+    def InitAPIInfo(self) :
+        self.serviceKey = "QHpOtm0e0OwX2cl8WWXuWGQoaOkbXfXYjF60tquzusBWCg3488dfLbTLACxkPJr1EyPxSYd27VCOUh6ZS+RhPQ=="
 
+    # about title
     def Clicked_Title(self) :
         webbrowser.open("https://www.tukorea.ac.kr")
 
     # about listbox
-
     def Selected_ListBox(self, event) :
         self.entry_Search.delete(0, 'end')
         self.entry_Search.insert(0, self.LocalData_ws.cell(event.widget.curselection()[0] + 1, 3).value)
+
+    # about search
+    def Clicked_Search(self) :
+        callbackURL = "http://apis.data.go.kr/B552584/ArpltnInforInqireSvc/getMsrstnAcctoRltmMesureDnsty"
+        params = '?' + urlencode({
+            quote_plus("serviceKey"): self.serviceKey,
+            quote_plus("returnType"): "xml",
+            quote_plus("numOfRows"): "10",
+            quote_plus("pageNo"): "1",
+            quote_plus("stationName"): self.entry_Search.get(),
+            quote_plus("dataTerm"): "DAILY",
+            quote_plus("ver"): "1.4"
+        })
+
+        url = callbackURL + params
+        response_body = urlopen(url).read()
+        root = ET.fromstring(response_body.decode('utf-8'))
+        items = root.findall(".//item")
+
+        allinfo_PM = []
+        for item in items :
+            info_PM = {
+                "dataTime": item.findtext("dataTime"),
+                "stationName": item.findtext("stationName"),
+                "pm10": item.findtext("pm10Value"),
+                "pm10Grade": item.findtext("pm10Grade"),
+                "pm25": item.findtext("pm25Value"),
+                "pm25Grade": item.findtext("pm25Grade"),
+                "o3": item.findtext("o3Value"),
+                "o3Grade": item.findtext("o3Grade"),
+                "no2": item.findtext("no2Value"),
+                "no2Grade": item.findtext("no2Grade"),
+                "co": item.findtext("coValue"),
+                "coGrade": item.findtext("coGrade"),
+                "so2": item.findtext("so2Value"),
+                "so2Grade": item.findtext("so2Grade")
+            }
+
+            allinfo_PM.append(info_PM)
+
 
 HAMBOGOGA()
