@@ -88,10 +88,10 @@ class HAMBOGOGA :
         self.button_Search.place(x= 535, y= 80)
 
     def InitInfoButton(self) :
-        self.button_PM = Button(self.window_main, text= "미세먼지 정보", width= 33, height= 1)
+        self.button_PM = Button(self.window_main, text= "미세먼지 정보", width= 33, height= 1, command= self.Show_PM)
         self.button_PM.place(x= 311, y= 150)
         
-        self.butto_Weather = Button(self.window_main, text= "날씨 정보", width= 33, height= 1)
+        self.butto_Weather = Button(self.window_main, text= "날씨 정보", width= 33, height= 1, command= self.Show_Weather)
         self.butto_Weather.place(x= 311, y= 200)
         
         self.butto_Stock = Button(self.window_main, text= "주식 정보", width= 33, height= 1)
@@ -266,6 +266,24 @@ class HAMBOGOGA :
         x1, y1, x2, y2 = self.canvas_Info2.coords(rect)
         self.canvas_Info2.coords(rect, 284 * col, y1, 284 * col + 284, y2)
         self.canvas_Info2.tag_lower(rect, test)
+
+    # Weather Info
+    def Show_Weather(self) :
+        self.Show_WeatherInfo2(self.nowinfo_Weather)
+
+    def Show_WeatherInfo2(self, info_pm) :
+        self.canvas_Info2.delete('all')
+
+        self.Create_Rectangle_In_Canvas("발표 일자 : " + info_pm["baseDate"], 0, 0, 0)
+        self.Create_Rectangle_In_Canvas("발표 시각 : " + info_pm["baseTime"], 0, 1, 0)
+        self.Create_Rectangle_In_Canvas("현재 기온 : " + info_pm["T1H"] + " ℃", 1, 0, 0)
+        self.Create_Rectangle_In_Canvas("현재 습도 : " + info_pm["REH"] + " %", 1, 1, 0)
+        self.Create_Rectangle_In_Canvas("1시간 강수량 : " + info_pm["RN1"] + " mm", 2, 0, 0)
+        self.Create_Rectangle_In_Canvas("강수 형태 : " + info_pm["PTY"], 2, 1, 0)
+        self.Create_Rectangle_In_Canvas("동서방향 풍속 : " + info_pm["UUU"] + " m/s", 3, 0, 0)
+        self.Create_Rectangle_In_Canvas("남북방향 풍속 : " + info_pm["VVV"] + " m/s", 3, 1, 0)
+        self.Create_Rectangle_In_Canvas("현재 풍향 : " + info_pm["VEC"] + " °", 4, 0, 0)
+        self.Create_Rectangle_In_Canvas("현재 풍속 : " + info_pm["WSD"] + " m/s", 4, 1, 0)
 
 
 HAMBOGOGA()
