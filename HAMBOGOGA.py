@@ -23,7 +23,7 @@ import datetime
 class HAMBOGOGA :
     def __init__(self) :
         self.window_main = Tk()
-        self.window_main.geometry("600x900")
+        self.window_main.geometry("1200x900")
 
         # data
         self.ReadExelFile()
@@ -137,6 +137,31 @@ class HAMBOGOGA :
         root = ET.fromstring(response_body.decode('utf-8'))
         items = root.findall(".//item")
 
+        if not items :
+            location = ""
+
+            for row in self.LocalData_ws.rows :
+                if row[2].value == self.entry_Search.get() :
+                    location = row[1].value
+                    break
+
+            callbackURL = "http://apis.data.go.kr/B552584/ArpltnInforInqireSvc/getMsrstnAcctoRltmMesureDnsty"
+            params = '?' + urlencode({
+                quote_plus("serviceKey"): self.serviceKey,
+                quote_plus("returnType"): "xml",
+                quote_plus("numOfRows"): "10",
+                quote_plus("pageNo"): "1",
+                quote_plus("stationName"): location,
+                quote_plus("dataTerm"): "DAILY",
+                quote_plus("ver"): "1.4"
+            })
+
+            url = callbackURL + params
+            response_body = urlopen(url).read()
+            root = ET.fromstring(response_body.decode('utf-8'))
+            items = root.findall(".//item")
+            
+
         self.allinfo_PM = []
         for item in items :
             info_PM = {
@@ -199,8 +224,12 @@ class HAMBOGOGA :
                     self.allinfo_Weather[fcsttime][item.findtext("category")] = item.findtext("fcstValue")
 
         # Weather now
-        nowtime = eval(datetime.datetime.now().strftime("%H"))
-        nowtime = str(nowtime - 1) + "00"
+        nowtime = datetime.datetime.now().strftime("%H")
+
+        if nowtime[0] == '0' :
+            nowtime = nowtime[0] + str(eval(nowtime[1]) - 1) + "00"
+        else :
+            nowtime = str(eval(nowtime) - 1) + "00"
 
         # x, y
         nx, ny = -1, -1
