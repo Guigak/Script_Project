@@ -14,6 +14,9 @@ from urllib.request import urlopen
 from urllib.parse import urlencode, unquote, quote_plus
 import xml.etree.ElementTree as ET
 
+# re
+import re
+
 class HAMBOGOGA :
     def __init__(self) :
         self.window_main = Tk()
@@ -92,11 +95,38 @@ class HAMBOGOGA :
         self.butto_Stock.place(x= 311, y= 250)
 
     def InitInfoCanvas(self) :
+        # 1
         self.canvas_Info = Canvas(self.window_main, width= 567, height= 300, bg= 'white')
         self.canvas_Info.place(x= 15, y= 300)
 
+        # 2
         self.canvas_Info2 = Canvas(self.window_main, width= 567, height= 260, bg= 'white')
         self.canvas_Info2.place(x= 15, y= 620)
+
+        # test
+        test1 = self.canvas_Info2.create_text(142, 10, text= "test1")
+        rect1 = self.canvas_Info2.create_rectangle(self.canvas_Info2.bbox(test1), fill= 'red')
+        x1, y1, x2, y2 = self.canvas_Info2.coords(rect1)
+        self.canvas_Info2.coords(rect1, 0, y1, 284, y2)
+        self.canvas_Info2.tag_lower(rect1, test1)
+
+        test2 = self.canvas_Info2.create_text(426, 10, text= "test2")
+        rect2 = self.canvas_Info2.create_rectangle(self.canvas_Info2.bbox(test2), fill= 'yellow')
+        x1, y1, x2, y2 = self.canvas_Info2.coords(rect2)
+        self.canvas_Info2.coords(rect2, 284, y1, 567, y2)
+        self.canvas_Info2.tag_lower(rect2, test2)
+
+        test3 = self.canvas_Info2.create_text(142, 30, text= "test3")
+        rect3 = self.canvas_Info2.create_rectangle(self.canvas_Info2.bbox(test3), fill= 'green')
+        x1, y1, x2, y2 = self.canvas_Info2.coords(rect3)
+        self.canvas_Info2.coords(rect3, 0, y1, 284, y2)
+        self.canvas_Info2.tag_lower(rect3, test3)
+
+        test4 = self.canvas_Info2.create_text(426, 30, text= "test4")
+        rect4 = self.canvas_Info2.create_rectangle(self.canvas_Info2.bbox(test4), fill= 'blue')
+        x1, y1, x2, y2 = self.canvas_Info2.coords(rect4)
+        self.canvas_Info2.coords(rect4, 284, y1, 567, y2)
+        self.canvas_Info2.tag_lower(rect4, test4)
 
     def InitAPIInfo(self) :
         self.serviceKey = "QHpOtm0e0OwX2cl8WWXuWGQoaOkbXfXYjF60tquzusBWCg3488dfLbTLACxkPJr1EyPxSYd27VCOUh6ZS+RhPQ=="
@@ -118,7 +148,7 @@ class HAMBOGOGA :
             quote_plus("returnType"): "xml",
             quote_plus("numOfRows"): "10",
             quote_plus("pageNo"): "1",
-            quote_plus("stationName"): self.entry_Search.get(),
+            quote_plus("stationName"): re.sub('\d+', '', self.entry_Search.get()),
             quote_plus("dataTerm"): "DAILY",
             quote_plus("ver"): "1.4"
         })
@@ -148,6 +178,13 @@ class HAMBOGOGA :
             }
 
             allinfo_PM.append(info_PM)
+
+        self.Show_PMInfo2(allinfo_PM)
+
+    def Show_PMInfo2(self, info_pm) :
+        self.canvas_Info2.create_text(100, 10, text= "측정 시간 : " + info_pm[0]["dataTime"])
+        #self.canvas_Info2.create_text(234, 0, text= "측정소 : " + info_pm[0]["stationName"])
+
 
 
 HAMBOGOGA()
