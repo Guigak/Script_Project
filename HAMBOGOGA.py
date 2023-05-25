@@ -159,8 +159,23 @@ class HAMBOGOGA :
     def Show_PMInfo2(self, info_pm) :
         self.canvas_Info2.delete('all')
 
+        self.Create_Rectangle_In_Canvas("측정 시간 : " + info_pm[0]["dataTime"], 0, 0, 0)
+        self.Create_Rectangle_In_Canvas("측정소 : " + info_pm[0]["stationName"], 0, 1, 0)
+        self.Create_Rectangle_In_Canvas("미세먼지 : " + info_pm[0]["pm10"] + " ㎍/㎥", 1, 0, eval(info_pm[0]["pm10Grade"]))
+        self.Create_Rectangle_In_Canvas("초미세먼지 : " + info_pm[0]["pm25"] + " ㎍/㎥", 1, 1, eval(info_pm[0]["pm25Grade"]))
+        self.Create_Rectangle_In_Canvas("오존 : " + info_pm[0]["o3"] + " ppm", 2, 0, eval(info_pm[0]["o3Grade"]))
+        self.Create_Rectangle_In_Canvas("이산화질소 : " + info_pm[0]["no2"] + " ppm", 2, 1, eval(info_pm[0]["no2Grade"]))
+        self.Create_Rectangle_In_Canvas("일산화탄소 : " + info_pm[0]["co"] + " ppm", 3, 0, eval(info_pm[0]["coGrade"]))
+        self.Create_Rectangle_In_Canvas("아황산가스 : " + info_pm[0]["so2"] + " ppm", 3, 1, eval(info_pm[0]["so2Grade"]))
+
+        # grade
+        self.Create_Rectangle_In_Canvas("좋음", 11, 0, 1)
+        self.Create_Rectangle_In_Canvas("보통", 11, 1, 2)
+        self.Create_Rectangle_In_Canvas("나쁨", 12, 0, 3)
+        self.Create_Rectangle_In_Canvas("매우 나쁨", 12, 1, 4)
+
     def Create_Rectangle_In_Canvas(self, intext, row, col, grade) :
-        color = ["white", "blue", "green", "yellow", "red"]
+        color = ["white", "SkyBlue1", "pale green", "yellow2", "IndianRed1"]
 
         test = self.canvas_Info2.create_text(142 + 284 * col, 10 + 20 * row, text= intext)
         rect = self.canvas_Info2.create_rectangle(self.canvas_Info2.bbox(test), fill= color[grade])
