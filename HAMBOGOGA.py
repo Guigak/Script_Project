@@ -133,7 +133,7 @@ class HAMBOGOGA :
         root = ET.fromstring(response_body.decode('utf-8'))
         items = root.findall(".//item")
 
-        allinfo_PM = []
+        self.allinfo_PM = []
         for item in items :
             info_PM = {
                 "dataTime": item.findtext("dataTime"),
@@ -152,9 +152,13 @@ class HAMBOGOGA :
                 "so2Grade": item.findtext("so2Grade")
             }
 
-            allinfo_PM.append(info_PM)
+            self.allinfo_PM.append(info_PM)
 
-        self.Show_PMInfo2(allinfo_PM)
+        self.Show_PM()
+
+    # PMInfo
+    def Show_PM(self) :
+        self.Show_PMInfo2(self.allinfo_PM)
 
     def Show_PMInfo2(self, info_pm) :
         self.canvas_Info2.delete('all')
