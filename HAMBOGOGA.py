@@ -17,6 +17,9 @@ import xml.etree.ElementTree as ET
 # re
 import re
 
+# date
+import datetime
+
 class HAMBOGOGA :
     def __init__(self) :
         self.window_main = Tk()
@@ -78,7 +81,7 @@ class HAMBOGOGA :
 
     def InitSearchLayout(self) :
         self.entry_Search = Entry(self.window_main, width= 25)
-        self.entry_Search.insert(0, "정왕동")
+        self.entry_Search.insert(0, "정왕1동")
         self.entry_Search.place(x= 315, y= 84)
 
         self.button_Search = Button(self.window_main, text= "검색", width=5, command= self.Clicked_Search)
@@ -117,6 +120,7 @@ class HAMBOGOGA :
 
     # about search
     def Clicked_Search(self) :
+        # PM
         callbackURL = "http://apis.data.go.kr/B552584/ArpltnInforInqireSvc/getMsrstnAcctoRltmMesureDnsty"
         params = '?' + urlencode({
             quote_plus("serviceKey"): self.serviceKey,
@@ -155,6 +159,82 @@ class HAMBOGOGA :
             self.allinfo_PM.append(info_PM)
 
         self.Show_PM()
+
+        # Weather fcst
+        today = re.sub(r'[^0-9]', '', str(datetime.date.today()))   # date
+
+        # x, y
+        nx, ny = -1, -1
+
+        for row in self.LocalData_ws.rows :
+            if row[2].value == self.entry_Search.get() :
+                nx, ny = row[3].value, row[4].value
+                break
+
+        if nx != -1 and ny != -1 :
+            callbackURL = "http://apis.data.go.kr/1360000/VilageFcstInfoService_2.0/getVilageFcst"
+            params = '?' + urlencode({
+                quote_plus("serviceKey"): self.serviceKey,
+                quote_plus("pageNo"): "1",
+                quote_plus("numOfRows"): "500",
+                quote_plus("dataType"): "XML",
+                quote_plus("base_date"): today,
+                quote_plus("base_time"): "0200",
+                quote_plus("nx"): nx,
+                quote_plus("ny"): ny
+            })
+
+            url = callbackURL + params
+            response_body = urlopen(url).read()
+            root = ET.fromstring(response_body.decode('utf-8'))
+            items = root.findall(".//item")
+
+            self.allinfo_Weather = dict()
+            for item in items :
+                if item.findtext("fcstDate") == item.findtext("baseDate") :
+                    fcsttime = item.findtext("fcstTime")
+
+                    if fcsttime not in self.allinfo_Weather :
+                        self.allinfo_Weather[fcsttime] = dict()
+                    self.allinfo_Weather[fcsttime][item.findtext("category")] = item.findtext("fcstValue")
+
+        # Weather now
+        nowtime = eval(datetime.datetime.now().strftime("%H"))
+        nowtime = str(nowtime - 1) + "00"
+
+        # x, y
+        nx, ny = -1, -1
+
+        for row in self.LocalData_ws.rows :
+            if row[2].value == self.entry_Search.get() :
+                nx, ny = row[3].value, row[4].value
+                break
+
+        if nx != -1 and ny != -1 :
+            callbackURL = "http://apis.data.go.kr/1360000/VilageFcstInfoService_2.0/getUltraSrtNcst"
+            params = '?' + urlencode({
+                quote_plus("serviceKey"): self.serviceKey,
+                quote_plus("pageNo"): "1",
+                quote_plus("numOfRows"): "500",
+                quote_plus("dataType"): "XML",
+                quote_plus("base_date"): today,
+                quote_plus("base_time"): nowtime,
+                quote_plus("nx"): nx,
+                quote_plus("ny"): ny
+            })
+
+            url = callbackURL + params
+            response_body = urlopen(url).read()
+            root = ET.fromstring(response_body.decode('utf-8'))
+            items = root.findall(".//item")
+
+            self.nowinfo_Weather = dict()
+
+            self.nowinfo_Weather["baseDate"] = today
+            self.nowinfo_Weather["baseTime"] = nowtime
+
+            for item in items :
+                self.nowinfo_Weather[item.findtext("category")] = item.findtext("obsrValue")
 
     # PMInfo
     def Show_PM(self) :
