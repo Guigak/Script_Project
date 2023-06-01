@@ -20,6 +20,11 @@ import re
 # date
 import datetime
 
+# cef
+import threading
+import sys
+from cefpython3 import cefpython as cef
+
 class HAMBOGOGA :
     def __init__(self) :
         self.window_main = Tk()
@@ -108,6 +113,15 @@ class HAMBOGOGA :
 
     def InitAPIInfo(self) :
         self.serviceKey = "QHpOtm0e0OwX2cl8WWXuWGQoaOkbXfXYjF60tquzusBWCg3488dfLbTLACxkPJr1EyPxSYd27VCOUh6ZS+RhPQ=="
+
+    # about map
+    def Show_Map(self, frame) :
+        sys.excepthook = cef.ExceptHook
+        window_info = cef.WindowInfo(frame.winfo_id())
+        window_info.SetAsChild(frame.winfo_id(), [0, 0, 570, 870])
+        cef.Initialize()
+        browser = cef.CreateBrowserSync(window_info, url= 'https://www.misemise.co.kr/')
+        cef.MessageLoop()
 
     # about title
     def Clicked_Title(self) :
