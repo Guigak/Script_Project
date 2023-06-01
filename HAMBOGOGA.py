@@ -40,6 +40,7 @@ class HAMBOGOGA :
         self.InitInfoButton()
         self.InitInfoCanvas()
         self.InitAPIInfo()
+        self.InitMap()
 
         self.window_main.mainloop()
 
@@ -113,6 +114,13 @@ class HAMBOGOGA :
 
     def InitAPIInfo(self) :
         self.serviceKey = "QHpOtm0e0OwX2cl8WWXuWGQoaOkbXfXYjF60tquzusBWCg3488dfLbTLACxkPJr1EyPxSYd27VCOUh6ZS+RhPQ=="
+
+    def InitMap(self) :
+        self.frame_Map = Frame(self.window_main, width= 570, height= 870)
+        self.frame_Map.place(x= 615, y= 15)
+        thread = threading.Thread(target= self.Show_Map, args= (self.frame_Map,))
+        thread.daemon = True
+        thread.start()
 
     # about map
     def Show_Map(self, frame) :
