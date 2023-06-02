@@ -1,6 +1,7 @@
 # tkinter
 from tkinter import *
 from tkinter import font
+from tkinter import ttk
 
 # webbrowser
 import webbrowser
@@ -24,6 +25,9 @@ import datetime
 import threading
 import sys
 from cefpython3 import cefpython as cef
+
+# time module
+import cpptime
 
 class HAMBOGOGA :
     def __init__(self) :
@@ -94,12 +98,22 @@ class HAMBOGOGA :
         self.button_Search.place(x= 535, y= 80)
 
     def InitInfoButton(self) :
+        # pm
         self.button_PM = Button(self.window_main, text= "미세먼지 정보", width= 33, height= 1, command= self.Show_PM)
-        self.button_PM.place(x= 311, y= 150)
+        self.button_PM.place(x= 311, y= 130)
         
+        # weather
         self.butto_Weather = Button(self.window_main, text= "날씨 정보", width= 33, height= 1, command= self.Show_Weather)
-        self.butto_Weather.place(x= 311, y= 200)
+        self.butto_Weather.place(x= 311, y= 170)
         
+        # stock
+        stocks = ('넥슨게임즈', '펄어비스', '크래프톤', '넷마블', '데브시스터즈')
+
+        self.selected_stock = StringVar()
+        self.combobox_stock = ttk.Combobox(self.window_main, values= stocks, width= 31, height= 1, textvariable= self.selected_stock)
+        self.combobox_stock.set("Select a stock")
+        self.combobox_stock.place(x= 313, y= 215)
+
         self.butto_Stock = Button(self.window_main, text= "주식 정보", width= 33, height= 1)
         self.butto_Stock.place(x= 311, y= 250)
 
