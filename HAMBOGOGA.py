@@ -114,7 +114,7 @@ class HAMBOGOGA :
         self.combobox_stock.set("Select a stock")
         self.combobox_stock.place(x= 313, y= 215)
 
-        self.butto_Stock = Button(self.window_main, text= "주식 정보", width= 33, height= 1)
+        self.butto_Stock = Button(self.window_main, text= "주식 정보", width= 33, height= 1, command= self.Search_Stock)
         self.butto_Stock.place(x= 311, y= 250)
 
     def InitInfoCanvas(self) :
@@ -349,6 +349,40 @@ class HAMBOGOGA :
         self.Create_Rectangle_In_Canvas("남북방향 풍속 : " + info_pm["VVV"] + " m/s", 3, 1, 0)
         self.Create_Rectangle_In_Canvas("현재 풍향 : " + info_pm["VEC"] + " °", 4, 0, 0)
         self.Create_Rectangle_In_Canvas("현재 풍속 : " + info_pm["WSD"] + " m/s", 4, 1, 0)
+
+    # Stock Info
+    def Search_Stock(self) :        
+        # Stock
+        callbackURL = "http://apis.data.go.kr/1160100/service/GetStockSecuritiesInfoService/getStockPriceInfo"
+        params = '?' + urlencode({
+            quote_plus("serviceKey"): self.serviceKey,
+            quote_plus("numOfRows"): "10",
+            quote_plus("pageNo"): "1",
+            quote_plus("returnType"): "xml",
+            quote_plus("beginBasDt"): cpptime.date_bn(10),
+            quote_plus("itmsNm"): self.selected_stock.get()
+        })
+
+        url = callbackURL + params
+        response_body = urlopen(url).read()
+        root = ET.fromstring(response_body.decode('utf-8'))
+        items = root.findall(".//item")
+
+        self.allinfo_Stock = []
+        for item in items :
+            info_Stock = {
+                "date": item.findtext("basDt"),
+                "name": item.findtext("itmsNm"),
+                "category": item.findtext("mrktCtg"),
+                "drp": item.findtext("drp"),
+                "vs": item.findtext("vs"),
+                "rate": item.findtext("fltRt"),
+                "trade": item.findtext("trqu")
+            }
+
+            self.allinfo_Stock.append(info_Stock)
+
+        self.allinfo_Stock = sorted(self.allinfo_Stock, key= lambda k : k['date'])
 
 
 HAMBOGOGA()
