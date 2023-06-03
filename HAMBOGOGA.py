@@ -395,9 +395,19 @@ class HAMBOGOGA :
         self.Create_Rectangle_In_Canvas("종목명 : " + info_pm["name"], 0, 1, 0)
         self.Create_Rectangle_In_Canvas("시장 구분 : " + info_pm["category"], 1, 0, 0)
         self.Create_Rectangle_In_Canvas("종가 : " + info_pm["clpr"] + " ￦", 1, 1, 0)
-        self.Create_Rectangle_In_Canvas("전일 대비 : " + info_pm["vs"] + " ￦", 2, 0, 0)
-        self.Create_Rectangle_In_Canvas("등락률 : " + info_pm["rate"] + " %", 2, 1, 0)
+        self.Create_Rectangle_In_Canvas("전일 대비 : " + info_pm["vs"] + " ￦", 2, 0, self.Return_Color(info_pm["vs"]))
+        self.Create_Rectangle_In_Canvas("등락률 : " + info_pm["rate"] + " %", 2, 1, self.Return_Color(info_pm["vs"]))
         self.Create_Rectangle_In_Canvas("거래량 : " + info_pm["trade"], 3, 0, 0)
+        
+        # grade
+        self.Create_Rectangle_In_Canvas("하락", 12, 0, 1)
+        self.Create_Rectangle_In_Canvas("상승", 12, 1, 4)
+
+    def Return_Color(self, v) :
+        if v[0] == '-' :
+            return 1
+        else :
+            return 4
 
 
 HAMBOGOGA()
