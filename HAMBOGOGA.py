@@ -61,14 +61,11 @@ class HAMBOGOGA :
         # F : 경도
         # G : 위도
 
-        # # test
-        # for row in self.LocalData_ws.rows :
-        #     print(row[7].value)
-
     # init
     def InitAppTitle(self) :
-        self.button_AppTitle = Button(self.window_main, text= "HAMBOGOGA", width= 70, height= 2, relief= FLAT, command= self.Clicked_Title)    # height 1 : 25?
-        self.button_AppTitle.place(x= 15, y= 15)
+        self.photo_logo = PhotoImage(file= "title_logo.png")
+        self.button_AppTitle = Button(self.window_main, text= "HAMBOGOGA", image= self.photo_logo, relief= FLAT, command= self.Clicked_Title)    # height 1 : 25?
+        self.button_AppTitle.place(x= 13, y= 15)
 
     def InitLocationListBox(self) :
         self.frame_Location = Frame(self.window_main, width= 33, height= 10)
