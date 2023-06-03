@@ -161,7 +161,7 @@ class HAMBOGOGA :
         params = '?' + urlencode({
             quote_plus("serviceKey"): self.serviceKey,
             quote_plus("returnType"): "xml",
-            quote_plus("numOfRows"): "20",
+            quote_plus("numOfRows"): "10",
             quote_plus("pageNo"): "1",
             quote_plus("stationName"): re.sub('\d+', '', self.entry_Search.get()),
             quote_plus("dataTerm"): "DAILY",
@@ -185,7 +185,7 @@ class HAMBOGOGA :
             params = '?' + urlencode({
                 quote_plus("serviceKey"): self.serviceKey,
                 quote_plus("returnType"): "xml",
-                quote_plus("numOfRows"): "20",
+                quote_plus("numOfRows"): "10",
                 quote_plus("pageNo"): "1",
                 quote_plus("stationName"): location,
                 quote_plus("dataTerm"): "DAILY",
@@ -328,7 +328,7 @@ class HAMBOGOGA :
 
         x_width = width // (count + 1)
         x_gap = x_width // 5
-        x_start = x_width
+        x_start = x_width - 10
         y_gap = 50
         y_start = 25
         y_width = height - y_gap * 2 - y_start
@@ -340,9 +340,34 @@ class HAMBOGOGA :
             y1 = height - y_gap
             y0 = y1 - y_start - (eval(self.allinfo_PM[count - i - 1]['pm10']) - min) * y_stretch
 
-            self.canvas_Info.create_text(x0 + x_gap / 2, y1 + 10, text= self.allinfo_PM[count - i - 1]['dataTime'][11:13])
+            self.canvas_Info.create_text(x0 + x_gap + 3, y1 + 10, text= self.allinfo_PM[count - i - 1]['dataTime'][11:13])
             self.canvas_Info.create_rectangle(x0, y0, x1, y1, fill= 'red')
             self.canvas_Info.create_text(x0 + x_gap / 2, y0 - 10, text= self.allinfo_PM[count - i - 1]['pm10'])
+
+        # PM25
+        min = eval(self.allinfo_PM[0]['pm25'])
+        max = eval(self.allinfo_PM[0]['pm25'])
+
+        for i in range(len(self.allinfo_PM)) :
+            temp = eval(self.allinfo_PM[i]['pm25'])
+
+            if temp < min :
+                min = temp
+
+            if temp > max :
+                max = temp
+                
+        x_start = x_start + 15
+        y_stretch = y_width / (max - min)
+
+        for i in range(count) :
+            x0 = x_start + i * x_width
+            x1 = x0 + x_gap
+            y1 = height - y_gap
+            y0 = y1 - y_start - (eval(self.allinfo_PM[count - i - 1]['pm25']) - min) * y_stretch
+
+            self.canvas_Info.create_rectangle(x0, y0, x1, y1, fill= 'blue')
+            self.canvas_Info.create_text(x0 + x_gap / 2, y0 - 10, text= self.allinfo_PM[count - i - 1]['pm25'])
 
     def Show_PMInfo2(self, info_pm) :
         self.canvas_Info2.delete('all')
@@ -434,10 +459,10 @@ class HAMBOGOGA :
         callbackURL = "http://apis.data.go.kr/1160100/service/GetStockSecuritiesInfoService/getStockPriceInfo"
         params = '?' + urlencode({
             quote_plus("serviceKey"): self.serviceKey,
-            quote_plus("numOfRows"): "10",
+            quote_plus("numOfRows"): "14",
             quote_plus("pageNo"): "1",
             quote_plus("returnType"): "xml",
-            quote_plus("beginBasDt"): cpptime.date_bn(10),
+            quote_plus("beginBasDt"): cpptime.date_bn(14),
             quote_plus("itmsNm"): self.selected_stock.get()
         })
 
@@ -493,7 +518,7 @@ class HAMBOGOGA :
             y1 = height - y_gap
             y0 = y1 - y_start - (eval(self.allinfo_Stock[i]['clpr']) - min) * y_stretch
 
-            self.canvas_Info.create_text(x0 + x_gap / 2, y1 + 10, text= self.allinfo_Stock[i]['date'])
+            self.canvas_Info.create_text(x0 + x_gap / 2, y1 + 10, text= self.allinfo_Stock[i]['date'][4:])
             self.canvas_Info.create_rectangle(x0, y0, x1, y1, fill= 'red')
             self.canvas_Info.create_text(x0 + x_gap / 2, y0 - 10, text= self.allinfo_Stock[i]['clpr'])
 
