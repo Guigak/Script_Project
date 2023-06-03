@@ -382,11 +382,43 @@ class HAMBOGOGA :
 
             self.allinfo_Stock.append(info_Stock)
 
-        self.allinfo_Stock = sorted(self.allinfo_Stock, key= lambda k : k['date'])
+        self.allinfo_Stock = sorted(self.allinfo_Stock, key= lambda k : k['date'], reverse= False)
         self.Show_Stock()
 
     def Show_Stock(self) :
+        self.Show_StockInfo1()
         self.Show_StockInfo2(self.allinfo_Stock[-1])
+
+    def Show_StockInfo1(self) :
+        self.canvas_Info.delete('all')
+
+        width = 567
+        height = 300
+
+        temp = self.allinfo_Stock
+        temp = sorted(temp, key= lambda k : k['clpr'])
+        min = eval(temp[0]['clpr'])
+        max = eval(temp[-1]['clpr'])
+        count = len(self.allinfo_Stock)
+
+        x_width = width // (count + 1)
+        x_gap = x_width // 5
+        x_start = x_width
+        y_gap = 50
+        y_start = 25
+        y_width = height - y_gap * 2 - y_start
+        y_stretch = y_width / (max - min)
+
+        for i in range(count) :
+            x0 = x_start + i * x_width
+            x1 = x0 + x_gap
+            y1 = height - y_gap
+            y0 = y1 - y_start - (eval(self.allinfo_Stock[i]['clpr']) - min) * y_stretch
+
+            self.canvas_Info.create_text(x0 + x_gap / 2, y1 + 10, text= self.allinfo_Stock[i]['date'])
+            self.canvas_Info.create_rectangle(x0, y0, x1, y1, fill= 'red')
+            self.canvas_Info.create_text(x0 + x_gap / 2, y0 - 10, text= self.allinfo_Stock[i]['clpr'])
+
 
     def Show_StockInfo2(self, info_pm) :
         self.canvas_Info2.delete('all')
