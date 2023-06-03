@@ -67,7 +67,7 @@ class HAMBOGOGA :
 
     # init
     def InitAppTitle(self) :
-        self.button_AppTitle = Button(self.window_main, text= "HAMBOGOGA", width= 70, height= 2, command= self.Clicked_Title)    # height 1 : 25?
+        self.button_AppTitle = Button(self.window_main, text= "HAMBOGOGA", width= 70, height= 2, relief= FLAT, command= self.Clicked_Title)    # height 1 : 25?
         self.button_AppTitle.place(x= 15, y= 15)
 
     def InitLocationListBox(self) :
