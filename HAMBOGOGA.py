@@ -374,7 +374,7 @@ class HAMBOGOGA :
                 "date": item.findtext("basDt"),
                 "name": item.findtext("itmsNm"),
                 "category": item.findtext("mrktCtg"),
-                "drp": item.findtext("drp"),
+                "clpr": item.findtext("clpr"),
                 "vs": item.findtext("vs"),
                 "rate": item.findtext("fltRt"),
                 "trade": item.findtext("trqu")
@@ -383,6 +383,21 @@ class HAMBOGOGA :
             self.allinfo_Stock.append(info_Stock)
 
         self.allinfo_Stock = sorted(self.allinfo_Stock, key= lambda k : k['date'])
+        self.Show_Stock()
+
+    def Show_Stock(self) :
+        self.Show_StockInfo2(self.allinfo_Stock[-1])
+
+    def Show_StockInfo2(self, info_pm) :
+        self.canvas_Info2.delete('all')
+
+        self.Create_Rectangle_In_Canvas("기준 일자 : " + info_pm["date"], 0, 0, 0)
+        self.Create_Rectangle_In_Canvas("종목명 : " + info_pm["name"], 0, 1, 0)
+        self.Create_Rectangle_In_Canvas("시장 구분 : " + info_pm["category"], 1, 0, 0)
+        self.Create_Rectangle_In_Canvas("종가 : " + info_pm["clpr"] + " ￦", 1, 1, 0)
+        self.Create_Rectangle_In_Canvas("전일 대비 : " + info_pm["vs"] + " ￦", 2, 0, 0)
+        self.Create_Rectangle_In_Canvas("등락률 : " + info_pm["rate"] + " %", 2, 1, 0)
+        self.Create_Rectangle_In_Canvas("거래량 : " + info_pm["trade"], 3, 0, 0)
 
 
 HAMBOGOGA()
