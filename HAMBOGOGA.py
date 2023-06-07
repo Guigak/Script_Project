@@ -167,8 +167,12 @@ class HAMBOGOGA :
 
     # about listbox
     def Selected_ListBox(self, event) :
-        self.entry_Search.delete(0, 'end')
-        self.entry_Search.insert(0, self.LocalData_ws.cell(event.widget.curselection()[0] + 1, 3).value)
+        try :
+            self.entry_Search.insert(0, self.LocalData_ws.cell(event.widget.curselection()[0] + 1, 3).value)
+            self.entry_Search.delete(0, 'end')
+            self.entry_Search.insert(0, self.LocalData_ws.cell(event.widget.curselection()[0] + 1, 3).value)
+        except :
+            pass
 
     # about search
     def Clicked_Search(self) :
