@@ -29,6 +29,16 @@ from cefpython3 import cefpython as cef
 # time module
 import cpptime
 
+# telegram
+import time
+import sqlite3
+import telepot
+from pprint import pprint
+from bs4 import BeautifulSoup
+import traceback
+
+import noti
+
 class HAMBOGOGA :
     def __init__(self) :
         self.window_main = Tk()
@@ -45,6 +55,7 @@ class HAMBOGOGA :
         self.InitInfoCanvas()
         self.InitAPIInfo()
         self.InitMap()
+        self.InitBot()
 
         self.window_main.mainloop()
 
@@ -133,6 +144,14 @@ class HAMBOGOGA :
         thread.daemon = True
         thread.start()
 
+    def InitBot(self) :
+        self.bot = telepot.Bot(noti.TOKEN)
+        pprint( self.bot.getMe() )
+
+        self.bot.message_loop(self.handle)
+
+        print('Listening...')
+
     # about map
     def Show_Map(self, frame) :
         sys.excepthook = cef.ExceptHook
@@ -219,7 +238,8 @@ class HAMBOGOGA :
         self.Show_PM()
 
         # Weather fcst
-        today = re.sub(r'[^0-9]', '', str(datetime.date.today()))   # date
+        # today = re.sub(r'[^0-9]', '', str(datetime.date.today()))   # date
+        today = cpptime.date_bn(0)
 
         # x, y
         nx, ny = -1, -1
@@ -451,7 +471,7 @@ class HAMBOGOGA :
         self.Create_Rectangle_In_Canvas("현재 풍속 : " + info_pm["WSD"] + " m/s", 4, 1, 0)
 
     # Stock Info
-    def Search_Stock(self) :        
+    def Search_Stock(self) :
         # Stock
         callbackURL = "http://apis.data.go.kr/1160100/service/GetStockSecuritiesInfoService/getStockPriceInfo"
         params = '?' + urlencode({
@@ -539,6 +559,215 @@ class HAMBOGOGA :
             return 1
         else :
             return 4
+        
+    # telegram
+    def replyAptData(self, date_param, user, loc_param='11710'):
+        print(user, date_param, loc_param)
+        res_list = noti.getData( loc_param, date_param )
+        msg = ''
+        for r in res_list:
+            print( str(datetime.now()).split('.')[0], r )
+            if len(r+msg)+1>noti.MAX_MSG_LENGTH:
+                noti.sendMessage( user, msg )
+                msg = r+'\n'
+            else:
+                msg += r+'\n'
+        if msg:
+            noti.sendMessage( user, msg )
+        else:
+            noti.sendMessage( user, '%s 기간에 해당하는 데이터가 없습니다.'%date_param )
+
+    def save( user, loc_param ):
+        conn = sqlite3.connect('users.db')
+        cursor = conn.cursor()
+        cursor.execute('CREATE TABLE IF NOT EXISTS users( user TEXT, location TEXT, PRIMARY KEY(user, location) )')
+        try:
+            cursor.execute('INSERT INTO users(user, location) VALUES ("%s", "%s")' % (user, loc_param))
+        except sqlite3.IntegrityError:
+            noti.sendMessage( user, '이미 해당 정보가 저장되어 있습니다.' )
+            return
+        else:
+            noti.sendMessage( user, '저장되었습니다.' )
+            conn.commit()
+
+    def check(self, user):
+        conn = sqlite3.connect('users.db')
+        cursor = conn.cursor()
+        cursor.execute('CREATE TABLE IF NOT EXISTS users( user TEXT, location TEXT, PRIMARY KEY(user, location) )')
+        cursor.execute('SELECT * from users WHERE user="%s"' % user)
+        for data in cursor.fetchall():
+            row = 'id:' + str(data[0]) + ', location:' + data[1]
+            noti.sendMessage( user, row )
+
+    def PM(self, user, name) :
+        callbackURL = "http://apis.data.go.kr/B552584/ArpltnInforInqireSvc/getMsrstnAcctoRltmMesureDnsty"
+        params = '?' + urlencode({
+            quote_plus("serviceKey"): self.serviceKey,
+            quote_plus("returnType"): "xml",
+            quote_plus("numOfRows"): "10",
+            quote_plus("pageNo"): "1",
+            quote_plus("stationName"): re.sub('\d+', '', name),
+            quote_plus("dataTerm"): "DAILY",
+            quote_plus("ver"): "1.4"
+        })
+
+        url = callbackURL + params
+        response_body = urlopen(url).read()
+        root = ET.fromstring(response_body.decode('utf-8'))
+        items = root.findall(".//item")            
+
+        temp_PM = []
+        for item in items :
+            info_PM = {
+                "dataTime": item.findtext("dataTime"),
+                "stationName": item.findtext("stationName"),
+                "pm10": item.findtext("pm10Value"),
+                "pm10Grade": item.findtext("pm10Grade"),
+                "pm25": item.findtext("pm25Value"),
+                "pm25Grade": item.findtext("pm25Grade"),
+                "o3": item.findtext("o3Value"),
+                "o3Grade": item.findtext("o3Grade"),
+                "no2": item.findtext("no2Value"),
+                "no2Grade": item.findtext("no2Grade"),
+                "co": item.findtext("coValue"),
+                "coGrade": item.findtext("coGrade"),
+                "so2": item.findtext("so2Value"),
+                "so2Grade": item.findtext("so2Grade")
+            }
+
+            temp_PM.append(info_PM)
+
+        info = temp_PM[0]
+
+        noti.sendMessage(user, "측정 시간 : " + info["dataTime"])
+        noti.sendMessage(user, "측정소 : " + info["stationName"])
+        noti.sendMessage(user, "미세먼지 : " + info["pm10"] + " ㎍/㎥")
+        noti.sendMessage(user, "초미세먼지 : " + info["pm25"] + " ㎍/㎥")
+        noti.sendMessage(user, "오존 : " + info["o3"] + " ppm")
+        noti.sendMessage(user, "이산화질소 : " + info["no2"] + " ppm")
+        noti.sendMessage(user, "일산화탄소 : " + info["co"] + " ppm")
+        noti.sendMessage(user, "아황산가스 : " + info["so2"] + " ppm")
+
+    def Weather(self, user, name) :
+        today = cpptime.date_bn(0)
+        nowtime = datetime.datetime.now().strftime("%H")
+
+        if nowtime[0] == '0' :
+            nowtime = nowtime[0] + str(eval(nowtime[1]) - 1) + "00"
+        else :
+            nowtime = str(eval(nowtime) - 1) + "00"
+
+        # x, y
+        nx, ny = -1, -1
+
+        for row in self.LocalData_ws.rows :
+            if row[2].value == name :
+                nx, ny = row[3].value, row[4].value
+                break
+
+        temp_Weather = dict()
+
+        if nx != -1 and ny != -1 :
+            callbackURL = "http://apis.data.go.kr/1360000/VilageFcstInfoService_2.0/getUltraSrtNcst"
+            params = '?' + urlencode({
+                quote_plus("serviceKey"): self.serviceKey,
+                quote_plus("pageNo"): "1",
+                quote_plus("numOfRows"): "500",
+                quote_plus("dataType"): "XML",
+                quote_plus("base_date"): today,
+                quote_plus("base_time"): nowtime,
+                quote_plus("nx"): nx,
+                quote_plus("ny"): ny
+            })
+
+            url = callbackURL + params
+            response_body = urlopen(url).read()
+            root = ET.fromstring(response_body.decode('utf-8'))
+            items = root.findall(".//item")
+
+            temp_Weather["baseDate"] = today
+            temp_Weather["baseTime"] = nowtime
+
+            for item in items :
+                temp_Weather[item.findtext("category")] = item.findtext("obsrValue")
+
+        info = temp_Weather
+
+        noti.sendMessage(user, "발표 일자 : " + info["baseDate"])
+        noti.sendMessage(user, "발표 시각 : " + info["baseTime"])
+        noti.sendMessage(user, "현재 기온 : " + info["T1H"] + " ℃")
+        noti.sendMessage(user, "현재 습도 : " + info["REH"] + " %")
+        noti.sendMessage(user, "1시간 강수량 : " + info["RN1"] + " mm")
+        noti.sendMessage(user, "강수 형태 : " + info["PTY"])
+        noti.sendMessage(user, "동서방향 풍속 : " + info["UUU"] + " m/s")
+        noti.sendMessage(user, "남북방향 풍속 : " + info["VVV"] + " m/s")
+        noti.sendMessage(user, "현재 풍향 : " + info["VEC"] + " °")
+        noti.sendMessage(user, "현재 풍속 : " + info["WSD"] + " m/s")
+
+    def stock(self, user, name) :
+        # Stock
+        callbackURL = "http://apis.data.go.kr/1160100/service/GetStockSecuritiesInfoService/getStockPriceInfo"
+        params = '?' + urlencode({
+            quote_plus("serviceKey"): self.serviceKey,
+            quote_plus("numOfRows"): "7",
+            quote_plus("pageNo"): "1",
+            quote_plus("returnType"): "xml",
+            quote_plus("beginBasDt"): cpptime.date_bn(7),
+            quote_plus("itmsNm"): name
+        })
+
+        url = callbackURL + params
+        response_body = urlopen(url).read()
+        root = ET.fromstring(response_body.decode('utf-8'))
+        items = root.findall(".//item")
+
+        temp_Stock = []
+        for item in items :
+            info_Stock = {
+                "date": item.findtext("basDt"),
+                "name": item.findtext("itmsNm"),
+                "category": item.findtext("mrktCtg"),
+                "clpr": item.findtext("clpr"),
+                "vs": item.findtext("vs"),
+                "rate": item.findtext("fltRt"),
+                "trade": item.findtext("trqu")
+            }
+
+            temp_Stock.append(info_Stock)
+            
+        temp_Stock = sorted(temp_Stock, key= lambda k : k['date'], reverse= False)
+        info = temp_Stock[-1]
+        
+        noti.sendMessage(user, "기준 일자 : " + info["date"])
+        noti.sendMessage(user, "종목명 : " + info["name"])
+        noti.sendMessage(user, "시장 구분 : " + info["category"])
+        noti.sendMessage(user, "종가 : " + info["clpr"] + " ￦")
+        noti.sendMessage(user, "전일 대비 : " + info["vs"] + " ￦")
+        noti.sendMessage(user, "등락률 : " + info["rate"] + " %")
+        noti.sendMessage(user, "거래량 : " + info["trade"])
+
+    def handle(self, msg):
+        content_type, chat_type, chat_id = telepot.glance(msg)
+        if content_type != 'text':
+            noti.sendMessage(chat_id, '난 텍스트 이외의 메시지는 처리하지 못해요.')
+            return
+
+        text = msg['text']
+        args = text.split(' ')
+        if text.startswith('미세먼지') and len(args)>1:
+            print('try to 미세먼지', args[1])
+            self.PM(chat_id, args[1] )
+        elif text.startswith('날씨') and len(args)>1:
+            print('try to 날씨', args[1])
+            self.Weather(chat_id, args[1] )
+        elif text.startswith('주식') and len(args)>1:
+            print('try to 주식', args[1])
+            self.stock(chat_id, args[1] )
+        elif text.startswith('확인'):
+            print('try to 확인')
+            self.check( chat_id )
+        else:
+            noti.sendMessage(chat_id, '모르는 명령어입니다.\n거래 [YYYYNN] [지역번호]\n지역 [지역번호], 저장 [지역번호], 확인 중 하나의 명령을 입력하세요.')
 
 
 HAMBOGOGA()
