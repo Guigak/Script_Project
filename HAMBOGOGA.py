@@ -771,7 +771,7 @@ class HAMBOGOGA :
             print('try to 확인')
             self.check( chat_id )
         else:
-            noti.sendMessage(chat_id, '모르는 명령어입니다.\n거래 [YYYYNN] [지역번호]\n지역 [지역번호], 저장 [지역번호], 확인 중 하나의 명령을 입력하세요.')
+            noti.sendMessage(chat_id, '모르는 명령어입니다.\n미세먼지 [동네명]\n날씨 [동네명]\n주식 [종목명]\n확인\n중 하나의 명령을 입력하세요.')
 
 
 HAMBOGOGA()
